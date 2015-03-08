@@ -48,14 +48,14 @@ define filechk_config_mk
 )
 endef
 
-$(obj)/include/jailhouse/config.mk: Makefile FORCE
+$(obj)/include/generated/config.mk: Makefile FORCE
 	$(call filechk,config_mk)
 
 define filechk_version
 	$(src)/../scripts/gen_version_h $(src)/..
 endef
 
-clean-files += include/jailhouse/config.mk \
+clean-files += include/generated/config.mk \
 	include/generated/version.h
 
 define sed-y
@@ -101,9 +101,9 @@ $(foreach co,$(CORE_OBJECTS),\
 
 $(obj)/setup.o: $(obj)/include/generated/version.h
 
-arch-builtin: $(obj)/$(defines-file) $(obj)/include/jailhouse/config.mk FORCE
+arch-builtin: $(obj)/$(defines-file) $(obj)/include/generated/config.mk FORCE
 	$(Q)$(MAKE) $(build)=$(obj)/arch/$(SRCARCH) \
-		CONFIG_MK=$(obj)/include/jailhouse/config.mk
+		CONFIG_MK=$(obj)/include/generated/config.mk
 
 always :=
 
