@@ -179,6 +179,14 @@ bool vcpu_handle_io_access(void)
 	result = x86_pci_config_handler(io.port, io.in, io.size);
 	if (result == 0)
 		result = i8042_access_handler(io.port, io.in, io.size);
+	if (result == 0) {
+		if (this_cell() != &root_cell &&
+		    ((io.port & 0xff7e) == 0x20 || /* PICs */
+		     (io.port & 0xfffe) == 0x70 || /* RTC */
+		     (io.port & 0xfffc) == 0x40 || /* PIT */
+		      io.port == 0x61)) /* PC speaker / NMI control */
+			result = 1;
+	}
 
 	if (result == 1) {
 		vcpu_skip_emulated_instruction(io.inst_len);

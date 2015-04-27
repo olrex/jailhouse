@@ -33,7 +33,7 @@ static u32 apic_reserved_bits[] = {
 	[0x09 ... 0x0a] = -1,
 	[0x0b]          = 0,		/* EOI */
 	[0x0c ... 0x0e] = -1,
-	[0x0f]          = 0xfffffe00,	/* SVR */
+	[0x0f]          = 0xfffffc00,	/* SVR */
 	[0x10 ... 0x2e] = -1,
 	[0x2f]          = 0xfffef800,	/* CMCI */
 	[0x30]          = 0xfff33000,	/* ICR (0..31) */
@@ -484,6 +484,8 @@ unsigned int apic_mmio_access(unsigned long rip,
 		return 0;
 	}
 	if (is_write) {
+		if (reg == APIC_REG_ID && this_cell() != &root_cell)
+			return inst.inst_len; /* ignore */
 		val = this_cpu_data()->guest_regs.by_index[inst.reg_num];
 		if (apic_accessing_reserved_bits(reg, val))
 			return 0;
@@ -501,7 +503,10 @@ unsigned int apic_mmio_access(unsigned long rip,
 			panic_printk("FATAL: Unsupported change to DFR: %x\n",
 				     val);
 			return 0;
-		} else if (reg >= APIC_REG_LVTCMCI && reg <= APIC_REG_LVTERR &&
+		} else if ((reg == APIC_REG_LVT0 || reg == APIC_REG_LVT1) &&
+			   this_cell() != &root_cell)
+			return inst.inst_len; /* ignore */
+		else if (reg >= APIC_REG_LVTCMCI && reg <= APIC_REG_LVTERR &&
 			   apic_invalid_lvt_delivery_mode(reg, val))
 			return 0;
 		else if (reg >= APIC_REG_XLVT0 && reg <= APIC_REG_XLVT3 &&
