@@ -15,7 +15,7 @@ include $(INMATES_LIB)/Makefile.lib
 LIBDIR := ../../lib/x86
 
 INMATES := tiny-demo.bin apic-demo.bin ioapic-demo.bin 32-bit-demo.bin \
-	pci-demo.bin e1000-demo.bin ivshmem-demo.bin
+	pci-demo.bin e1000-demo.bin ivshmem-demo.bin linux-demo.bin
 
 tiny-demo-y := tiny-demo.o \
 	$(LIBDIR)/header.o $(LIBDIR)/printk.o $(LIBDIR)/timing.o
@@ -43,5 +43,10 @@ e1000-demo-y := e1000-demo.o \
 ivshmem-demo-y := ivshmem-demo.o \
 	$(LIBDIR)/header.o $(LIBDIR)/printk.o $(LIBDIR)/mem.o \
 	$(LIBDIR)/int.o $(LIBDIR)/pci.o $(LIBDIR)/timing.o
+
+CFLAGS_linux-demo.o := -I/usr/include
+
+linux-demo-y := linux-demo.o \
+	$(LIBDIR)/header.o $(LIBDIR)/printk.o $(LIBDIR)/mem.o
 
 $(eval $(call DECLARE_TARGETS,$(INMATES)))
